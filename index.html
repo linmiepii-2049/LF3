@@ -185,6 +185,9 @@
       }
   
       try {
+        console.log("🚀 正在送出資料到 GAS...");
+        console.log("🟡 資料內容：", data);
+        console.log("🟡 URL：", GOOGLE_SCRIPT_URL);
         const res = await fetch(GOOGLE_SCRIPT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
