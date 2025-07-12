@@ -15,7 +15,7 @@
     <h2>會員調查表（純表單提交）</h2>
   
     <form action="https://script.google.com/macros/s/AKfycbwff4-H8o_MtWQGe8gaPXOXLhFIR6BrYvDBG6Th-uIwiTIH7cczkI5FVoRUgsRhVoTpkw/exec" method="POST" id="surveyForm">
-      <input type="hidden" name="userId" value="">
+      <input type="hidden" name="userId" id="userId" value="">
   
       <!-- 基本背景 -->
       <div class="section-title">基本背景</div>
@@ -109,24 +109,28 @@
       <button class="submit" type="submit">送出表單</button>
     </form>
 
+   <!-- ✅ 加上 debug div（選擇性） -->
+    <div id="debug" style="color: red; margin-top: 1rem;"></div>
+  
+    <!-- ✅ LIFF SDK 與自動填入 userId -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <script>
       liff.init({ liffId: '2007735873-neVqR0av' }).then(() => {
         if (!liff.isLoggedIn()) {
           liff.login();
         } else {
-          liff.getProfile().then(profile => {
-            document.querySelector('[name=\"userId\"]').value = profile.userId;
-          });
+          return liff.getProfile();
+        }
+      }).then(profile => {
+        if (profile) {
+          document.getElementById('userId').value = profile.userId;
         }
       }).catch(err => {
+        document.getElementById('debug').innerText = 'LIFF 錯誤：' + err.message;
         alert('LIFF 初始化失敗：' + err.message);
       });
     </script>
   </body>
-  
-
-
-  </html>
+</html>
 
 
