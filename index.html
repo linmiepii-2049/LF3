@@ -1,27 +1,181 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
-  <title>Redirecting...</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>會員調查表</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
+    label { font-weight: bold; margin-top: 1rem; display: block; }
+    .section-title { margin-top: 2rem; font-size: 1.2rem; color: #444; }
+    .submit { margin-top: 2rem; background: #06c; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; }
+  </style>
 </head>
 <body>
-<script>
-  async function main() {
-    await liff.init({ liffId: "2007735873-bMkJ5L1o" }); // 替換成你的 ID
-    if (!liff.isLoggedIn()) {
-      liff.login(); // 導向登入
-      return;
+  <h2>會員調查表</h2>
+  <form id="surveyForm">
+    <input type="hidden" id="userId" name="userId">
+
+    <!-- Part 1: 基本背景 -->
+    <div class="section-title">基本背景</div>
+
+    <label>電話：</label>
+    <input type="text" id="phone" name="phone" required>
+
+    <label>年齡：</label>
+    <input type="radio" name="age" value="25歲以下"> 25歲以下
+    <input type="radio" name="age" value="26-45歲"> 26-45歲
+    <input type="radio" name="age" value="46歲以上"> 46歲以上
+
+    <label>性別：</label>
+    <input type="radio" name="gender" value="男"> 男
+    <input type="radio" name="gender" value="女"> 女
+    <input type="radio" name="gender" value="其他"> 其他
+
+    <label>居住地：</label>
+    <input type="radio" name="region" value="中壢區"> 中壢區
+    <input type="radio" name="region" value="其他"> 其他
+
+    <!-- Part 2: 購買習慣 -->
+    <div class="section-title">購買習慣調查</div>
+
+    <label>多久購買一次麵包？</label>
+    <input type="radio" name="buyFreq" value="每週3次以上"> 每週3次以上
+    <input type="radio" name="buyFreq" value="每週1~3次"> 每週1~3次
+    <input type="radio" name="buyFreq" value="偶爾"> 偶爾
+
+    <label>通常在哪購買麵包？（可複選）</label>
+    <input type="checkbox" name="buyPlace" value="麵包店"> 麵包店
+    <input type="checkbox" name="buyPlace" value="便利商店"> 便利商店
+    <input type="checkbox" name="buyPlace" value="量販超市"> 量販超市
+    <input type="checkbox" name="buyPlace" value="網購"> 網購
+
+    <label>購買時間？</label>
+    <input type="radio" name="buyTime" value="下午"> 下午
+    <input type="radio" name="buyTime" value="晚上"> 晚上
+
+    <label>哪一餐吃麵包？</label>
+    <input type="radio" name="buyMeal" value="早餐"> 早餐
+    <input type="radio" name="buyMeal" value="點心"> 點心
+    <input type="radio" name="buyMeal" value="其他"> 其他
+
+    <!-- Part 3: 選擇考量 -->
+    <div class="section-title">選擇考量</div>
+
+    <label>選購時最重視？（可複選）</label>
+    <input type="checkbox" name="buyConcern" value="價格"> 價格
+    <input type="checkbox" name="buyConcern" value="無添加物食材"> 無添加物食材
+    <input type="checkbox" name="buyConcern" value="口味"> 口味
+    <input type="checkbox" name="buyConcern" value="製作過程"> 製作過程
+    <input type="checkbox" name="buyConcern" value="創新品項"> 創新品項
+    <input type="checkbox" name="buyConcern" value="外觀"> 外觀
+
+    <label>願意多付多少？</label>
+    <input type="radio" name="extraPay" value="10%以下"> 10%以下
+    <input type="radio" name="extraPay" value="11%~20%"> 11%~20%
+    <input type="radio" name="extraPay" value="依食材成本定價"> 依食材成本定價
+
+    <label>喜歡的品項（可複選）：</label>
+    <input type="checkbox" name="bakeFav" value="吐司系列"> 吐司系列
+    <input type="checkbox" name="bakeFav" value="台式日式麵包"> 台式日式麵包
+    <input type="checkbox" name="bakeFav" value="歐式麵包"> 歐式麵包
+    <input type="checkbox" name="bakeFav" value="法國麵包"> 法國麵包
+    <input type="checkbox" name="bakeFav" value="丹麥可頌"> 丹麥可頌
+    <input type="checkbox" name="bakeFav" value="貝果系列"> 貝果系列
+    <input type="checkbox" name="bakeFav" value="無麩質麵包"> 無麩質麵包
+    <input type="checkbox" name="bakeFav" value="蛋糕or甜點"> 蛋糕or甜點
+    <input type="checkbox" name="bakeFav" value="餅乾or伴手禮"> 餅乾or伴手禮
+    <input type="checkbox" name="bakeFav" value="其他"> 其他
+
+    <label>喜歡的麵包口味（可複選）：</label>
+    <input type="checkbox" name="tasteFav" value="原味"> 原味
+    <input type="checkbox" name="tasteFav" value="鹹口味"> 鹹口味
+    <input type="checkbox" name="tasteFav" value="甜口味"> 甜口味
+
+    <label>你會在意食材是否天然無添加？</label>
+    <input type="radio" name="natural" value="非常在意"> 非常在意
+    <input type="radio" name="natural" value="不在意"> 不在意
+
+    <!-- Part 4: 開放式 -->
+    <div class="section-title">意見與建議</div>
+
+    <label>最喜歡的麵包或蛋糕？</label>
+    <textarea id="favBread" rows="2"></textarea>
+
+    <label>很常找但市面上很少見的麵包/蛋糕？</label>
+    <textarea id="rareBread" rows="2"></textarea>
+
+    <button class="submit" type="submit">送出表單</button>
+  </form>
+
+  <script>
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwff4-H8o_MtWQGe8gaPXOXLhFIR6BrYvDBG6Th-uIwiTIH7cczkI5FVoRUgsRhVoTpkw/exec'; // ← 換成你的 Script URL
+
+    async function main() {
+      await liff.init({ liffId: '2007735873-neVqR0av' }); // ← 換成你的 LIFF ID
+
+      if (!liff.isLoggedIn()) {
+        liff.login();
+        return;
+      }
+
+      const profile = await liff.getProfile();
+      const userId = profile.userId;
+      document.getElementById('userId').value = userId;
+
+      document.getElementById('surveyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const data = {
+          userId,
+          phone: document.getElementById('phone').value,
+          age: getRadioValue('age'),
+          gender: getRadioValue('gender'),
+          region: getRadioValue('region'),
+          buyFreq: getRadioValue('buyFreq'),
+          buyPlace: getCheckboxValues('buyPlace'),
+          buyTime: getRadioValue('buyTime'),
+          buyMeal: getRadioValue('buyMeal'),
+          buyConcern: getCheckboxValues('buyConcern'),
+          extraPay: getRadioValue('extraPay'),
+          bakeFav: getCheckboxValues('bakeFav'),
+          tasteFav: getCheckboxValues('tasteFav'),
+          natural: getRadioValue('natural'),
+          favBread: document.getElementById('favBread').value,
+          rareBread: document.getElementById('rareBread').value
+        };
+
+        try {
+          const res = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          const result = await res.json();
+          if (result.status === 'success') {
+            alert('提交成功！感謝你的填寫 🎉');
+          } else {
+            alert('提交失敗，請稍後再試');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('提交時發生錯誤');
+        }
+      });
     }
 
-    const profile = await liff.getProfile();
-    const userId = profile.userId;
+    function getRadioValue(name) {
+      const selected = document.querySelector(`input[name="${name}"]:checked`);
+      return selected ? selected.value : '';
+    }
 
-    // 將 userId 傳送給你原本的 URL
-    const redirectUrl = "https://docs.google.com/forms/d/e/1FAIpQLScsiAjYK-5MJ0NicqBO-Tq6P6YQ0jWyZCgO8mBikXJ_NiKNPg/viewform?usp=pp_url&entry.1550806747=" + encodeURIComponent(userId);
-    window.location.href = redirectUrl;
-  }
+    function getCheckboxValues(name) {
+      return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value);
+    }
 
-  main();
-</script>
+    main();
+  </script>
 </body>
 </html>
