@@ -109,26 +109,50 @@
     <button class="submit" type="submit">送出表單</button>
   </form>
 
+
   <script>
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwff4-H8o_MtWQGe8gaPXOXLhFIR6BrYvDBG6Th-uIwiTIH7cczkI5FVoRUgsRhVoTpkw/exec'; // ← 換成你的 Script URL
-
-    async function main() {
-      await liff.init({ liffId: '2007735873-neVqR0av' }); // ← 換成你的 LIFF ID
-
+  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwff4-H8o_MtWQGe8gaPXOXLhFIR6BrYvDBG6Th-uIwiTIH7cczkI5FVoRUgsRhVoTpkw/exec'; // ← 改為你的
+  const debugEl = document.getElementById('debug'); // 顯示錯誤用
+  
+  async function main() {
+    try {
+      console.log('🔧 初始化 LIFF 中...');
+      await liff.init({ liffId: '2007735873-neVqR0av' });
+  
       if (!liff.isLoggedIn()) {
+        console.warn('尚未登入，進行 login()');
         liff.login();
         return;
       }
-
-      const profile = await liff.getProfile();
-      const userId = profile.userId;
-      document.getElementById('userId').value = userId;
-
-      document.getElementById('surveyForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const data = {
-          userId,
+  
+      console.log('✅ LIFF 初始化成功');
+    } catch (e) {
+      console.error('❌ LIFF 初始化失敗:', e);
+      debugEl.innerText = '❌ LIFF 初始化失敗：' + e.message;
+      alert('LIFF 初始化失敗');
+      return;
+    }
+  
+    let profile;
+    try {
+      profile = await liff.getProfile();
+      console.log('✅ 取得使用者資料：', profile);
+      document.getElementById('userId').value = profile.userId;
+    } catch (e) {
+      console.error('❌ 取得使用者資料失敗:', e);
+      debugEl.innerText = '❌ 無法取得使用者 profile：' + e.message;
+      alert('無法取得使用者資訊');
+      return;
+    }
+  
+    document.getElementById('surveyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      debugEl.innerText = ''; // 清空錯誤訊息
+  
+      let data = {};
+      try {
+        data = {
+          userId: profile.userId,
           phone: document.getElementById('phone').value,
           age: getRadioValue('age'),
           gender: getRadioValue('gender'),
@@ -145,37 +169,62 @@
           favBread: document.getElementById('favBread').value,
           rareBread: document.getElementById('rareBread').value
         };
-
+        console.log('📦 表單資料：', data);
+      } catch (err) {
+        console.error('❌ 表單組裝失敗：', err);
+        debugEl.innerText = '❌ 表單資料格式錯誤：' + err.message;
+        alert('表單欄位可能有誤，請重新檢查');
+        return;
+      }
+  
+      try {
+        const res = await fetch(GOOGLE_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+  
+        const text = await res.text();
+        console.log('📨 回傳原始內容：', text);
+  
+        let result;
         try {
-          const res = await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-          });
-
-          const result = await res.json();
-          if (result.status === 'success') {
-            alert('提交成功！感謝你的填寫 🎉');
-          } else {
-            alert('提交失敗，請稍後再試');
-          }
-        } catch (err) {
-          console.error(err);
-          alert('提交時發生錯誤');
+          result = JSON.parse(text);
+        } catch (jsonErr) {
+          debugEl.innerText = '❌ 回傳 JSON 無法解析：\n' + text;
+          console.error('❌ JSON 解析失敗：', jsonErr);
+          alert('回傳格式錯誤');
+          return;
         }
-      });
-    }
-
-    function getRadioValue(name) {
-      const selected = document.querySelector(`input[name="${name}"]:checked`);
-      return selected ? selected.value : '';
-    }
-
-    function getCheckboxValues(name) {
-      return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value);
-    }
-
-    main();
+  
+        if (res.ok && result.status === 'success') {
+          alert('✅ 提交成功！感謝你的填寫');
+        } else {
+          debugEl.innerText = '⚠️ 提交失敗：' + JSON.stringify(result);
+          alert('提交失敗，請稍後再試');
+        }
+  
+      } catch (err) {
+        console.error('❌ fetch 發生錯誤：', err);
+        debugEl.innerText = '❌ 發送表單時出錯：' + err.message;
+        alert('送出時發生錯誤，請稍後再試');
+      }
+    });
+  }
+  
+  function getRadioValue(name) {
+    const selected = document.querySelector(`input[name="${name}"]:checked`);
+    return selected ? selected.value : '';
+  }
+  
+  function getCheckboxValues(name) {
+    return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value);
+  }
+  
+  main();
   </script>
+
+  <div id="debug" style="margin-top:20px; color:red; white-space:pre-wrap;"></div>
+
 </body>
 </html>
